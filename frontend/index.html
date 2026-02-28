@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vidya Guide AI | Career Intelligence OS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #8f94fb;
+            --accent: #06b6d4;
+            --glass: rgba(15, 23, 42, 0.8);
+            --glass-heavy: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.1);
+            --text: #f1f5f9;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #020617;
+            color: var(--text);
+            background-image: radial-gradient(circle at 10% 10%, #1e1b4b 0%, transparent 40%),
+                              url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&q=80&w=1920');
+            background-size: cover;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* --- AUTH LAYER --- */
+        #authOverlay {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #020617; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-card {
+            background: var(--glass); backdrop-filter: blur(20px);
+            padding: 40px; border-radius: 30px; border: 1px solid var(--border);
+            width: 100%; max-width: 400px; text-align: center;
+        }
+
+        /* --- HEADER --- */
+        header {
+            padding: 1rem 5%; background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(15px); display: flex; justify-content: space-between;
+            align-items: center; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; }
+        .accent-text { color: var(--accent); }
+
+        /* --- DASHBOARD GRID --- */
+        #appContainer { display: none; padding: 40px 20px; max-width: 1200px; margin: 0 auto; }
+        .dashboard-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 24px; padding: 30px; cursor: pointer;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); background: var(--glass-heavy); }
+        .card i { font-size: 2rem; margin-bottom: 15px; display: block; }
+
+        /* --- TOOL PAGES --- */
+        .tool-page { display: none; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- UI COMPONENTS --- */
+        input, textarea, select {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border); color: white; border-radius: 12px;
+            margin: 10px 0; box-sizing: border-box; font-size: 14px;
+        }
+        button {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white; border: none; padding: 14px; border-radius: 12px;
+            font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        button:hover { opacity: 0.9; transform: scale(1.02); }
+        .back-btn { background: transparent; border: 1px solid var(--border); width: auto; margin-bottom: 20px; }
+
+        .report-section {
+            background: rgba(255,255,255,0.05); border-radius: 15px;
+            padding: 20px; margin-top: 20px; border-left: 4px solid var(--accent);
+        }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; color: #cbd5e1; }
+
+        /* GAUGES & CHARTS */
+        .gauge-bar { width: 100%; height: 12px; background: #1e293b; border-radius: 10px; overflow: hidden; margin: 10px 0; }
+        .gauge-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); width: 0%; transition: 1.5s; }
+        #chartContainer { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 20px; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div id="authOverlay">
+    <div class="auth-card">
+        <h1 class="logo">Vidya<span class="accent-text">Guide</span> AI</h1>
+        <p>Career Intelligence OS</p>
+        <input type="text" id="regName" placeholder="Full Name">
+        <input type="email" id="regEmail" placeholder="Email Address">
+        <button onclick="launchApp()">Enter Dashboard</button>
+    </div>
+</div>
+
+<div id="appContainer">
+    <header>
+        <div class="logo">VG<span class="accent-text">AI</span></div>
+        <div id="userLabel" style="font-size: 0.9rem; opacity: 0.8;"></div>
+    </header>
+
+    <main style="margin-top: 30px;">
+        <div id="dashboard" class="dashboard-grid">
+            <div class="card" onclick="openTool('career')">
+                <i class="fas fa-map-marked-alt" style="color: var(--accent);"></i>
+                <h3>Career Roadmap</h3>
+                <p>AI-generated paths based on role & seniority.</p>
+            </div>
+            <div class="card" onclick="openTool('resume')">
+                <i class="fas fa-file-invoice" style="color: #818cf8;"></i>
+                <h3>Resume Analyzer</h3>
+                <p>ATS scoring and keyword gap analysis.</p>
+            </div>
+            <div class="card" onclick="openTool('skillGap')">
+                <i class="fas fa-chart-pie" style="color: #facc15;"></i>
+                <h3>Skill Gap Lab</h3>
+                <p>Compare current skills vs target role requirements.</p>
+            </div>
+            <div class="card" onclick="openTool('interview')">
+                <i class="fas fa-microphone-alt" style="color: #f472b6;"></i>
+                <h3>Interview Coach</h3>
+                <p>STAR method evaluation & mock feedback.</p>
+            </div>
+        </div>
+
+        <div id="tool_career" class="tool-page">
+            <button class="back-btn" onclick="goHome()">← Back to Dashboard</button>
+            <div class="card">
+                <h2>Pathfinder Engine</h2>
+                <select id="field">
+                    <option>AI Engineer</option>
+                    <option>Web Developer</option>
+                    <option>Data Scientist</option>
+                    <option>DevOps Engineer</option>
+                </select>
+                <select id="level">
+                    <option value="Entry">Entry Level</option>
+                    <option value="Mid">Mid-Senior</option>
+                    <option value="Executive">Executive</option>
+                </select>
+                <button onclick="runCareerLogic()">Generate Roadmap</button>
+                <div id="careerOutput"></div>
+            </div>
+        </div>
+
+        <div id="tool_resume" class="tool-page">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div class="card">
+                <h2>AI Resume Audit</h2>
+                <input type="file" id="resFile" accept=".txt">
+                <textarea id="jobDesc" rows="4" placeholder="Paste target Job Description here..."></textarea>
+                <button onclick="runResumeLogic()">Analyze Alignment</button>
+                <div id="resumeOutput"></div>
+            </div>
+        </div>
+
+        <div id="tool_skillGap" class="tool-page">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div class="card">
+                <h2>Skill Gap Analysis</h2>
+                <input type="text" id="skillsInput" placeholder="Enter your skills (e.g. Python, React, SQL)">
+                <select id="targetRole">
+                    <option value="AI Engineer">AI Engineer</option>
+                    <option value="Web Developer">Web Developer</option>
+                    <option value="DevOps Engineer">DevOps Engineer</option>
+                </select>
+                <button onclick="runSkillGapLogic()">Visualize Gaps</button>
+                <div id="skillGapOutput"></div>
+                <div id="chartContainer"><canvas id="skillRadar"></canvas></div>
+            </div>
+        </div>
+
+        <div id="tool_interview" class="tool-page">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div class="card">
+                <h2>AI Interview Simulator</h2>
+                <p><strong>Prompt:</strong> "Describe a complex project you handled recently."</p>
+                <textarea id="interviewAnswer" rows="5" placeholder="Type your answer using the STAR method..."></textarea>
+                <button onclick="runInterviewLogic()">Evaluate Response</button>
+                <div id="interviewOutput"></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let userName = "";
+    let radarChart = null;
+
+    function launchApp() {
+        userName = document.getElementById('regName').value;
+        if(!userName) return alert("Please enter your name");
+        document.getElementById('authOverlay').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        document.getElementById('userLabel').innerHTML = `<i class="fas fa-user-circle"></i> ${userName}`;
+    }
+
+    function openTool(id) {
+        document.getElementById('dashboard').style.display = 'none';
+        document.querySelectorAll('.tool-page').forEach(p => p.style.display = 'none');
+        document.getElementById('tool_' + id).style.display = 'block';
+    }
+
+    function goHome() {
+        document.querySelectorAll('.tool-page').forEach(p => p.style.display = 'none');
+        document.getElementById('dashboard').style.display = 'grid';
+    }
+
+    // --- LOGIC: CAREER ROADMAP ---
+    function runCareerLogic() {
+        const field = document.getElementById('field').value;
+        const level = document.getElementById('level').value;
+        const out = document.getElementById('careerOutput');
+        
+        out.innerHTML = `
+            <div class="report-section">
+                <h3>${level} ${field} Roadmap</h3>
+                <ul>
+                    <li>Phase 1: Foundation in ${field} architectures</li>
+                    <li>Phase 2: Portfolio development & specialization</li>
+                    <li>Phase 3: Certification & Networking</li>
+                </ul>
+            </div>`;
+    }
+
+    // --- LOGIC: RESUME ---
+    function runResumeLogic() {
+        const file = document.getElementById('resFile').files[0];
+        const job = document.getElementById('jobDesc').value.toLowerCase();
+        const out = document.getElementById('resumeOutput');
+
+        if(!job) return alert("Please paste a job description.");
+
+        // Simulated Analysis
+        const score = Math.floor(Math.random() * 40) + 50;
+        out.innerHTML = `
+            <div class="report-section">
+                <h3>ATS Match Score</h3>
+                <div class="gauge-bar"><div class="gauge-fill" style="width:${score}%"></div></div>
+                <p>Score: <strong>${score}%</strong></p>
+                <p><i class="fas fa-lightbulb" style="color:var(--accent)"></i> Tip: Add more quantifiable metrics (e.g., "Increased efficiency by 20%").</p>
+            </div>`;
+    }
+
+    // --- LOGIC: SKILL GAP ---
+    function runSkillGapLogic() {
+        const current = document.getElementById('skillsInput').value.toLowerCase();
+        const target = document.getElementById('targetRole').value;
+        const out = document.getElementById('skillGapOutput');
+
+        const roleData = {
+            "AI Engineer": ["python", "ml", "pytorch", "docker", "math"],
+            "Web Developer": ["javascript", "react", "css", "node", "sql"],
+            "DevOps Engineer": ["linux", "aws", "kubernetes", "ci/cd", "terraform"]
+        };
+
+        const required = roleData[target];
+        const stats = required.map(s => current.includes(s) ? 100 : 20);
+        
+        out.innerHTML = `<div class="report-section"><h4>Targeting: ${target}</h4><p>Missing focus: ${required.filter(s => !current.includes(s)).join(', ') || 'None!'}</p></div>`;
+
+        const ctx = document.getElementById('skillRadar').getContext('2d');
+        if(radarChart) radarChart.destroy();
+        radarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: required,
+                datasets: [{
+                    label: 'Your Proficiency',
+                    data: stats,
+                    backgroundColor: 'rgba(6, 182, 212, 0.2)',
+                    borderColor: '#06b6d4',
+                    pointBackgroundColor: '#fff'
+                }]
+            },
+            options: { scales: { r: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.1)' }, angleLines: { color: 'rgba(255,255,255,0.1)' } } } }
+        });
+    }
+
+    // --- LOGIC: INTERVIEW ---
+    function runInterviewLogic() {
+        const answer = document.getElementById('interviewAnswer').value.toLowerCase();
+        const out = document.getElementById('interviewOutput');
+        
+        let score = 40;
+        if(answer.includes("situation")) score += 15;
+        if(answer.includes("task")) score += 15;
+        if(answer.includes("action")) score += 15;
+        if(answer.includes("result")) score += 15;
+
+        out.innerHTML = `
+            <div class="report-section">
+                <h3>Feedback Score: ${score}/100</h3>
+                <p>${score < 70 ? "Try to explicitly mention the <strong>Result</strong> of your actions." : "Great structure! You've used the STAR method effectively."}</p>
+            </div>`;
+    }
+</script>
+
+</body>
+</html>
